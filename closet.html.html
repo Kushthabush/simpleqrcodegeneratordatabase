@@ -1,438 +1,401 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Closet Mini Database + QR Codes</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Clothing Inventory + QR Codes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .wrapper {
-      width: 100%;
-      max-width: 900px;
-    }
-
-    h1, h2, h3 {
-      margin-top: 0;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .item-field {
-      margin: 6px 0;
-    }
-
-    .item-label {
-      font-weight: bold;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    th, td {
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-    }
-
-    th {
-      background: #f0f0f0;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 8px;
-      margin: 4px 0 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 60px;
-    }
-
-    button {
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      background: #007bff;
-      color: #fff;
-    }
-
-    button:hover {
-      background: #005fcc;
-    }
-
-    .btn-secondary {
-      background: #666;
-    }
-
-    .btn-secondary:hover {
-      background: #444;
-    }
-
-    .flex-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .flex-col {
-      flex: 1;
-      min-width: 260px;
-    }
-
-    #qrImage {
-      width: 200px;
-      height: 200px;
-    }
-
-    #qrBox {
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    #qrLink {
-      font-size: 12px;
-      word-break: break-all;
-      margin-top: 8px;
-      display: block;
-    }
-
-    .small-text {
-      font-size: 12px;
-      color: #666;
-    }
-
-    @media (max-width: 600px) {
+    <style>
       body {
-        padding: 10px;
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
       }
-    }
-  </style>
-</head>
 
-<body>
-  <div class="wrapper">
-    <!-- Item view (what you see when you scan a QR) -->
-    <div id="itemView" class="card hidden">
-      <h1 id="itemTitle">Item Details</h1>
-      <div id="itemContents"></div>
-      <p class="small-text" id="itemCodeText"></p>
-      <button class="btn-secondary" onclick="goToAdmin()">Go to Admin View</button>
-    </div>
+      .wrapper {
+        max-width: 900px;
+        width: 100%;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
 
-    <!-- Admin view (your mini database + QR generator) -->
-    <div id="adminView" class="card hidden">
-      <h1>Closet Mini Database</h1>
-      <p class="small-text">
-        Add or edit items below. Each item has a unique <strong>Code</strong> (like a tag number).
-        Your QR codes will point to that code.
-      </p>
+      h1 {
+        margin-top: 0;
+        text-align: center;
+      }
 
-      <div class="flex-row">
-        <div class="flex-col">
-          <h2>Add / Edit Item</h2>
-          <p class="small-text">
-            Use a short unique code (e.g., <strong>H001</strong>, <strong>D012</strong>, etc.).
-          </p>
+      .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
 
-          <label>Item Code</label>
-          <input id="codeInput" placeholder="e.g. H001" />
+      .form-row > div {
+        flex: 1 1 150px;
+        min-width: 140px;
+      }
 
-          <label>Name</label>
-          <input id="nameInput" placeholder="e.g. Black Cropped Hoodie" />
+      label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 3px;
+      }
 
-          <label>Category / Type</label>
-          <input id="categoryInput" placeholder="e.g. Hoodie, Dress, Jeans" />
+      input[type="text"],
+      input[type="number"],
+      textarea {
+        width: 100%;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 13px;
+        box-sizing: border-box;
+      }
 
-          <label>Size</label>
-          <input id="sizeInput" placeholder="e.g. S, M, L, 6, 28" />
+      textarea {
+        resize: vertical;
+        min-height: 40px;
+      }
 
-          <label>Color</label>
-          <input id="colorInput" placeholder="e.g. Black, Navy, Floral" />
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        background: #007bff;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+      }
 
-          <label>Notes</label>
-          <textarea id="notesInput" placeholder="e.g. Brand, fit, special details"></textarea>
+      button:hover {
+        background: #005fcc;
+      }
 
-          <button onclick="saveItem()">Save Item</button>
+      .top-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        gap: 10px;
+      }
+
+      .top-actions button {
+        background: #28a745;
+      }
+
+      .top-actions button:hover {
+        background: #218838;
+      }
+
+      .danger-btn {
+        background: #dc3545 !important;
+      }
+
+      .danger-btn:hover {
+        background: #b02a37 !important;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 13px;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 6px 8px;
+        text-align: left;
+      }
+
+      th {
+        background: #f0f0f0;
+      }
+
+      .qr-panel {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #qrImage {
+        width: 200px;
+        height: 200px;
+        margin-top: 10px;
+      }
+
+      .small-text {
+        font-size: 11px;
+        color: #666;
+        text-align: center;
+      }
+
+      @media (max-width: 600px) {
+        .form-row {
+          flex-direction: column;
+        }
+        .top-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <h1>Clothing Inventory + QR Codes</h1>
+
+      <!-- Add Item Form -->
+      <h2 style="font-size: 18px; margin-bottom: 8px;">Add New Item</h2>
+      <div class="form-row">
+        <div>
+          <label for="itemName">Item Name *</label>
+          <input type="text" id="itemName" placeholder="e.g. Black Hoodie">
         </div>
-
-        <div class="flex-col">
-          <h2>QR Code for Item</h2>
-          <p class="small-text">
-            Select an item from the table to generate a QR for it,
-            or type a code below and click "Generate QR".
-          </p>
-
-          <label>Item Code for QR</label>
-          <input id="qrCodeInput" placeholder="e.g. H001" />
-
-          <button onclick="generateQRForCode()">Generate QR</button>
-
-          <div id="qrBox" class="hidden">
-            <p class="small-text">Scan this QR to open the item details page:</p>
-            <img id="qrImage" alt="QR Code" />
-            <a id="qrLink" href="#" target="_blank"></a>
-          </div>
+        <div>
+          <label for="itemCategory">Category</label>
+          <input type="text" id="itemCategory" placeholder="e.g. Tops, Pants">
+        </div>
+        <div>
+          <label for="itemSize">Size</label>
+          <input type="text" id="itemSize" placeholder="e.g. S, M, L, 32x30">
         </div>
       </div>
 
-      <h2 style="margin-top: 24px;">All Items</h2>
-      <table id="itemsTable">
+      <div class="form-row">
+        <div>
+          <label for="itemColor">Color</label>
+          <input type="text" id="itemColor" placeholder="e.g. Black, Blue">
+        </div>
+        <div>
+          <label for="itemLocation">Location</label>
+          <input type="text" id="itemLocation" placeholder="e.g. Rack A, Bin 3">
+        </div>
+        <div>
+          <label for="itemNotes">Notes</label>
+          <textarea id="itemNotes" placeholder="Any extra info"></textarea>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button id="addItemBtn">Add Item to Database</button>
+        <button class="danger-btn" id="clearDbBtn">Clear ALL Items (Be careful)</button>
+      </div>
+
+      <!-- Items Table -->
+      <h2 style="font-size: 18px; margin-top: 20px;">Current Items</h2>
+      <table>
         <thead>
           <tr>
-            <th>Code</th>
-            <th>Name</th>
+            <th>#</th>
+            <th>Item</th>
             <th>Category</th>
             <th>Size</th>
             <th>Color</th>
+            <th>Location</th>
+            <th>Notes</th>
             <th>QR</th>
           </tr>
         </thead>
         <tbody id="itemsTableBody">
-          <!-- Filled by JS -->
+          <!-- rows go here -->
         </tbody>
       </table>
+
+      <!-- QR Display Panel -->
+      <div class="qr-panel">
+        <p class="small-text">
+          Click "QR" for any item to generate a QR code.<br>
+          When you scan it with your phone, the item details will appear as text.
+        </p>
+        <img id="qrImage" alt="QR Code will appear here">
+      </div>
+
+      <p class="small-text">
+        Items are saved in this browser using localStorage. If you switch devices or browsers, the data will not carry over automatically.
+      </p>
     </div>
-  </div>
 
-  <script>
-    // ===========================
-    // CONFIG
-    // ===========================
+    <script>
+      const STORAGE_KEY = "clothingInventoryItems";
 
-    // TODO: When you upload this file somewhere (e.g., GitHub Pages),
-    // change this BASE_URL to the full URL of that page.
-    // Example: const BASE_URL = "https://yourname.github.io/closet.html";
-    const BASE_URL = window.location.origin + window.location.pathname;
+      let items = [];
 
-    // ===========================
-    // MINI "DATABASE"
-    // ===========================
-    // You can pre-fill some items here, or add them using the form in Admin view.
-    // Each key is the item code, like "H001", "D005", etc.
-    const ITEMS = {
-      "H001": {
-        name: "Black Cropped Hoodie",
-        category: "Hoodie",
-        size: "M",
-        color: "Black",
-        notes: "Oversized fit, super soft inside. Brand: Example."
-      },
-      "D001": {
-        name: "Green Floral Midi Dress",
-        category: "Dress",
-        size: "6",
-        color: "Green / Floral",
-        notes: "Best for spring/summer events."
-      },
-      "J001": {
-        name: "High-Waisted Straight Jeans",
-        category: "Jeans",
-        size: "28",
-        color: "Light Wash",
-        notes: "Slight distressing on knees."
-      }
-    };
+      const itemNameInput = document.getElementById("itemName");
+      const itemCategoryInput = document.getElementById("itemCategory");
+      const itemSizeInput = document.getElementById("itemSize");
+      const itemColorInput = document.getElementById("itemColor");
+      const itemLocationInput = document.getElementById("itemLocation");
+      const itemNotesInput = document.getElementById("itemNotes");
 
-    // ===========================
-    // HELPERS
-    // ===========================
-
-    function getQueryParam(name) {
-      const params = new URLSearchParams(window.location.search);
-      return params.get(name);
-    }
-
-    function buildItemUrl(code) {
-      return BASE_URL + "?code=" + encodeURIComponent(code);
-    }
-
-    function showElement(id) {
-      document.getElementById(id).classList.remove("hidden");
-    }
-
-    function hideElement(id) {
-      document.getElementById(id).classList.add("hidden");
-    }
-
-    // ===========================
-    // ITEM VIEW (for when you scan QR)
-    // ===========================
-
-    function renderItemView(code) {
-      const item = ITEMS[code];
-      const itemView = document.getElementById("itemView");
-      const itemContents = document.getElementById("itemContents");
-      const itemTitle = document.getElementById("itemTitle");
-      const itemCodeText = document.getElementById("itemCodeText");
-
-      if (!item) {
-        itemTitle.textContent = "Item not found";
-        itemContents.innerHTML = "<p>Code: <strong>" + code + "</strong> was not found in the database.</p>";
-        itemCodeText.textContent = "";
-        showElement("itemView");
-        return;
-      }
-
-      itemTitle.textContent = item.name || ("Item " + code);
-      itemContents.innerHTML = `
-        <p class="item-field"><span class="item-label">Code:</span> ${code}</p>
-        <p class="item-field"><span class="item-label">Name:</span> ${item.name || "-"}</p>
-        <p class="item-field"><span class="item-label">Category:</span> ${item.category || "-"}</p>
-        <p class="item-field"><span class="item-label">Size:</span> ${item.size || "-"}</p>
-        <p class="item-field"><span class="item-label">Color:</span> ${item.color || "-"}</p>
-        <p class="item-field"><span class="item-label">Notes:</span> ${item.notes || "-"}</p>
-      `;
-
-      itemCodeText.textContent = "You are viewing this item via QR code link: ?code=" + code;
-      showElement("itemView");
-    }
-
-    function goToAdmin() {
-      window.location.href = BASE_URL; // reload without ?code
-    }
-
-    // ===========================
-    // ADMIN VIEW (mini DB + QR generator)
-    // ===========================
-
-    function renderItemsTable() {
-      const tbody = document.getElementById("itemsTableBody");
-      tbody.innerHTML = "";
-
-      const codes = Object.keys(ITEMS).sort();
-
-      codes.forEach(code => {
-        const item = ITEMS[code];
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
-          <td>${code}</td>
-          <td>${item.name || ""}</td>
-          <td>${item.category || ""}</td>
-          <td>${item.size || ""}</td>
-          <td>${item.color || ""}</td>
-          <td><button data-code="${code}">QR</button></td>
-        `;
-
-        // When clicking QR button in the table
-        const qrBtn = tr.querySelector("button");
-        qrBtn.addEventListener("click", () => {
-          document.getElementById("qrCodeInput").value = code;
-          generateQRForCode();
-        });
-
-        // When clicking a row, load it into the form for editing
-        tr.addEventListener("click", (e) => {
-          // Don't trigger when clicking QR button (we already do something there)
-          if (e.target.tagName === "BUTTON") return;
-          loadItemIntoForm(code);
-        });
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function loadItemIntoForm(code) {
-      const item = ITEMS[code];
-      if (!item) return;
-
-      document.getElementById("codeInput").value = code;
-      document.getElementById("nameInput").value = item.name || "";
-      document.getElementById("categoryInput").value = item.category || "";
-      document.getElementById("sizeInput").value = item.size || "";
-      document.getElementById("colorInput").value = item.color || "";
-      document.getElementById("notesInput").value = item.notes || "";
-    }
-
-    function saveItem() {
-      const code = document.getElementById("codeInput").value.trim();
-      const name = document.getElementById("nameInput").value.trim();
-      const category = document.getElementById("categoryInput").value.trim();
-      const size = document.getElementById("sizeInput").value.trim();
-      const color = document.getElementById("colorInput").value.trim();
-      const notes = document.getElementById("notesInput").value.trim();
-
-      if (!code) {
-        alert("Please enter a Code for the item (e.g. H001).");
-        return;
-      }
-
-      ITEMS[code] = { name, category, size, color, notes };
-      renderItemsTable();
-      alert("Item saved with code: " + code);
-    }
-
-    function generateQRForCode() {
-      const code = document.getElementById("qrCodeInput").value.trim();
-      if (!code) {
-        alert("Enter an item code (e.g. H001) to generate a QR.");
-        return;
-      }
-
-      const url = buildItemUrl(code);
-      const qrImgUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
-                       encodeURIComponent(url);
-
+      const addItemBtn = document.getElementById("addItemBtn");
+      const clearDbBtn = document.getElementById("clearDbBtn");
+      const itemsTableBody = document.getElementById("itemsTableBody");
       const qrImage = document.getElementById("qrImage");
-      const qrBox = document.getElementById("qrBox");
-      const qrLink = document.getElementById("qrLink");
 
-      qrImage.src = qrImgUrl;
-      qrLink.href = url;
-      qrLink.textContent = url;
-
-      showElement("qrBox");
-    }
-
-    // ===========================
-    // INIT
-    // ===========================
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const code = getQueryParam("code");
-
-      if (code) {
-        // When coming from a QR scan (with ?code=...)
-        renderItemView(code);
-      } else {
-        // Default: admin / database view
-        showElement("adminView");
-        renderItemsTable();
+      // Load items from localStorage on page load
+      function loadItems() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          try {
+            items = JSON.parse(saved);
+          } catch (e) {
+            console.error("Error parsing saved items:", e);
+            items = [];
+          }
+        } else {
+          items = [];
+        }
+        renderTable();
       }
-    });
-  </script>
-</body>
+
+      // Save items to localStorage
+      function saveItems() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      }
+
+      // Render table rows
+      function renderTable() {
+        itemsTableBody.innerHTML = "";
+
+        if (items.length === 0) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 8;
+          td.textContent = "No items yet. Add something above!";
+          td.style.textAlign = "center";
+          tr.appendChild(td);
+          itemsTableBody.appendChild(tr);
+          return;
+        }
+
+        items.forEach((item, index) => {
+          const tr = document.createElement("tr");
+
+          const tdIndex = document.createElement("td");
+          tdIndex.textContent = index + 1;
+          tr.appendChild(tdIndex);
+
+          const tdName = document.createElement("td");
+          tdName.textContent = item.name;
+          tr.appendChild(tdName);
+
+          const tdCat = document.createElement("td");
+          tdCat.textContent = item.category || "";
+          tr.appendChild(tdCat);
+
+          const tdSize = document.createElement("td");
+          tdSize.textContent = item.size || "";
+          tr.appendChild(tdSize);
+
+          const tdColor = document.createElement("td");
+          tdColor.textContent = item.color || "";
+          tr.appendChild(tdColor);
+
+          const tdLoc = document.createElement("td");
+          tdLoc.textContent = item.location || "";
+          tr.appendChild(tdLoc);
+
+          const tdNotes = document.createElement("td");
+          tdNotes.textContent = item.notes || "";
+          tr.appendChild(tdNotes);
+
+          const tdQR = document.createElement("td");
+          const qrBtn = document.createElement("button");
+          qrBtn.textContent = "QR";
+          qrBtn.style.padding = "4px 8px";
+          qrBtn.style.fontSize = "12px";
+
+          qrBtn.addEventListener("click", () => {
+            generateQRForItem(item);
+          });
+
+          tdQR.appendChild(qrBtn);
+          tr.appendChild(tdQR);
+
+          itemsTableBody.appendChild(tr);
+        });
+      }
+
+      // Add new item
+      function addItem() {
+        const name = itemNameInput.value.trim();
+        if (!name) {
+          alert("Item name is required.");
+          return;
+        }
+
+        const item = {
+          id: Date.now(), // unique-ish
+          name: name,
+          category: itemCategoryInput.value.trim(),
+          size: itemSizeInput.value.trim(),
+          color: itemColorInput.value.trim(),
+          location: itemLocationInput.value.trim(),
+          notes: itemNotesInput.value.trim()
+        };
+
+        items.push(item);
+        saveItems();
+        renderTable();
+        clearForm();
+      }
+
+      // Clear form inputs
+      function clearForm() {
+        itemNameInput.value = "";
+        itemCategoryInput.value = "";
+        itemSizeInput.value = "";
+        itemColorInput.value = "";
+        itemLocationInput.value = "";
+        itemNotesInput.value = "";
+      }
+
+      // Clear the entire database
+      function clearDatabase() {
+        if (!confirm("Are you sure you want to delete ALL items?")) {
+          return;
+        }
+        items = [];
+        saveItems();
+        renderTable();
+        qrImage.src = "";
+      }
+
+      // Generate QR for one item (text-based, not URL)
+      function generateQRForItem(item) {
+        const text =
+          `Item: ${item.name}\n` +
+          (item.category ? `Category: ${item.category}\n` : "") +
+          (item.size ? `Size: ${item.size}\n` : "") +
+          (item.color ? `Color: ${item.color}\n` : "") +
+          (item.location ? `Location: ${item.location}\n` : "") +
+          (item.notes ? `Notes: ${item.notes}\n` : "");
+
+        const qrUrl =
+          "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
+          encodeURIComponent(text);
+
+        qrImage.src = qrUrl;
+      }
+
+      // Hook up buttons
+      addItemBtn.addEventListener("click", addItem);
+      clearDbBtn.addEventListener("click", clearDatabase);
+
+      // Initial load
+      loadItems();
+    </script>
+  </body>
 </html>
